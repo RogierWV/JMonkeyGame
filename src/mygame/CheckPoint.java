@@ -12,17 +12,7 @@ public class CheckPoint {
     
     private boolean passed;
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    public CheckPoint() {
+        
+    }
 }
