@@ -15,4 +15,5 @@ hs_err_pid*
 *.dll
 *.so
 
+# Hating on IDE's
 build/**/*
