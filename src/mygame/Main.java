@@ -22,7 +22,6 @@ import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.BasicShadowRenderer;
-import com.jme3.texture.Texture.WrapMode;
 
 public class Main extends SimpleApplication implements ActionListener {
 
@@ -104,65 +103,9 @@ public class Main extends SimpleApplication implements ActionListener {
 
     }
 
-    private void initWorld() {
-        bulletAppState = new BulletAppState();
-        stateManager.attach(bulletAppState);
-
-        if (settings.getRenderer().startsWith("LWJGL")) {
-            BasicShadowRenderer bsr = new BasicShadowRenderer(assetManager, 512);
-            bsr.setDirection(new Vector3f(-0.5f, -0.3f, -0.3f).normalizeLocal());
-            viewPort.addProcessor(bsr);
-        }
-
-        cam.setFrustumFar(150f);
-        cam.setLocation(new Vector3f(10, 2, 3));
-        //flyCam.setMoveSpeed(10);
-
-        //PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
-        setupFloor();
-
-        dl = new DirectionalLight();
-        dl.setDirection(new Vector3f(-0.5f, -1f, -0.3f).normalizeLocal());
-        rootNode.addLight(dl);
-
-        dl = new DirectionalLight();
-        dl.setDirection(new Vector3f(0.5f, -0.1f, 0.3f).normalizeLocal());
-        rootNode.addLight(dl);
-    }
-
     private void initCar() {
         car = new Car(assetManager, bulletAppState);
         rootNode.attachChild(car);
-    }
-
-    public void setupFloor() {
-        
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setTexture("ColorMap", assetManager.loadTexture("Textures/Monkey.jpg"));
-        //Material mat = assetManager.loadMaterial(INPUT_MAPPING_EXIT)
-        /*
-        Material mat = new Material (assetManager ,"Common/MatDefs/Light/Lighting.j3md");
-        mat.setFloat("Shininess", 2.0f);
-        mat.setTexture("DiffuseMap", assetManager.loadTexture("Textures/BrickWall.jpg"));
-        mat.setTexture("NormalMap", assetManager.loadTexture("Textures/BrickWall_normal.jpg"));
-        mat.setTexture("ParallaxMap", assetManager.loadTexture("Textures/BrickWall_height.jpg"));
-        
-        mat.getTextureParam("DiffuseMap").getTextureValue().setWrap(WrapMode.Repeat);
-        mat.getTextureParam("NormalMap").getTextureValue().setWrap(WrapMode.Repeat);
-        mat.getTextureParam("ParallaxMap").getTextureValue().setWrap(WrapMode.Repeat);
-        * */
-
-        Box floor = new Box(Vector3f.ZERO, 140, 1f, 140);
-        floor.scaleTextureCoordinates(new Vector2f(112.0f, 112.0f));
-        Geometry floorGeom = new Geometry("Floor", floor);
-        floorGeom.setShadowMode(ShadowMode.Receive);
-        floorGeom.setMaterial(mat);
-
-        floorGeom.addControl(new RigidBodyControl(0f));
-        floorGeom.setLocalTranslation(new Vector3f(0f, -5, 0f));
-//          floorGeom.attachDebugShape(assetManager);
-        rootNode.attachChild(floorGeom);
-        getPhysicsSpace().add(floorGeom);
     }
 
     private PhysicsSpace getPhysicsSpace() {
@@ -171,12 +114,11 @@ public class Main extends SimpleApplication implements ActionListener {
 
     @Override
     public void simpleInitApp() {
-        //setupKeys();
+        setupKeys();
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
         createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
-        //initWorld();
-        //initCar();
+        initCar();
 
     }
 
