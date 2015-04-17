@@ -22,6 +22,8 @@ public class Main extends SimpleApplication implements ActionListener {
 
     private BulletAppState bulletAppState;
     private Car car;
+    
+    public static CheckPoint[] checkpoints;
 
     public static void main(String[] args) throws InterruptedException {
         Menu menu = new Menu();

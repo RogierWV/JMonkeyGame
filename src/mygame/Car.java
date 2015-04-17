@@ -31,6 +31,8 @@ public class Car extends Node {
     private Material material;
     private Node carNode;
     
+    public long score = 0;
+    
     
     public Car(AssetManager assetmanager, BulletAppState bulletappstate) {
         assetManager = assetmanager;
