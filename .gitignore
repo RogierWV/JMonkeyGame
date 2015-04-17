@@ -14,3 +14,5 @@ hs_err_pid*
 #DLL / SO
 *.dll
 *.so
+
+build/**/*
