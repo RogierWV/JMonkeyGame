@@ -1,53 +1,86 @@
+/*
+ * Copyright (c) 2009-2012 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package mygame;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.asset.AssetManager;
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.collision.shapes.MeshCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.control.VehicleControl;
+import com.jme3.bullet.objects.VehicleWheel;
+import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.Vector2f;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.BasicShadowRenderer;
 
 public class Main extends SimpleApplication implements ActionListener {
 
     private BulletAppState bulletAppState;
-    private Car car;
-<<<<<<< HEAD
-    
-    public static CheckPoint[] checkpoints;
-    DirectionalLight dl;
-=======
->>>>>>> parent of f64878d... initWorld has beer replaced by a world generator
+    private VehicleControl player;
+    private VehicleWheel fr, fl, br, bl;
+    private Node node_fr, node_fl, node_br, node_bl;
+    private float wheelRadius;
+    private float steeringValue = 0;
+    private float accelerationValue = 0;
+    private Node carNode;
 
-    public static void main(String[] args) throws InterruptedException {
-        Menu menu = new Menu();
-        menu.setVisible(true);
-        boolean runned = false;
-        while (!runned) {
-            Thread.sleep(1000);
-            if (menu.start) {
-                menu.setVisible(false);
-                runned = true;
-                Main app = new Main();
-                app.start();
-            }
-        }
+    public static void main(String[] args) {
+        Main app = new Main();
+        app.start();
     }
 
     private void setupKeys() {
-        inputManager.addMapping("Lefts", new KeyTrigger(KeyInput.KEY_A));
-        inputManager.addMapping("Rights", new KeyTrigger(KeyInput.KEY_D));
-        inputManager.addMapping("Ups", new KeyTrigger(KeyInput.KEY_W));
-        inputManager.addMapping("Downs", new KeyTrigger(KeyInput.KEY_S));
+        inputManager.addMapping("Lefts", new KeyTrigger(KeyInput.KEY_H));
+        inputManager.addMapping("Rights", new KeyTrigger(KeyInput.KEY_K));
+        inputManager.addMapping("Ups", new KeyTrigger(KeyInput.KEY_U));
+        inputManager.addMapping("Downs", new KeyTrigger(KeyInput.KEY_J));
         inputManager.addMapping("Space", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping("Reset", new KeyTrigger(KeyInput.KEY_RETURN));
         inputManager.addListener(this, "Lefts");
@@ -58,23 +91,23 @@ public class Main extends SimpleApplication implements ActionListener {
         inputManager.addListener(this, "Reset");
     }
 
-<<<<<<< HEAD
-=======
-    private void initWorld() {
+    @Override
+    public void simpleInitApp() {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
-
+//        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         if (settings.getRenderer().startsWith("LWJGL")) {
             BasicShadowRenderer bsr = new BasicShadowRenderer(assetManager, 512);
             bsr.setDirection(new Vector3f(-0.5f, -0.3f, -0.3f).normalizeLocal());
             viewPort.addProcessor(bsr);
         }
-
         cam.setFrustumFar(150f);
         flyCam.setMoveSpeed(10);
 
-        //PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
-        setupFloor();
+        setupKeys();
+        createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
+//        setupFloor();
+        buildPlayer();
 
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.5f, -1f, -0.3f).normalizeLocal());
@@ -85,102 +118,198 @@ public class Main extends SimpleApplication implements ActionListener {
         rootNode.addLight(dl);
     }
 
->>>>>>> parent of f64878d... initWorld has beer replaced by a world generator
-    private void initCar() {
-        car = new Car(assetManager, bulletAppState);
-        rootNode.attachChild(car);
-    }
-
-<<<<<<< HEAD
-=======
-    public void setupFloor() {
-        
-        //Material mat = assetManager.loadMaterial(INPUT_MAPPING_EXIT)
-        Material mat = new Material (assetManager ,"Common/MatDefs/Light/Lighting.j3md");
-        mat.setFloat("Shininess", 2.0f);
-        mat.setTexture("DiffuseMap", assetManager.loadTexture("Textures/BrickWall.jpg"));
-        mat.setTexture("NormalMap", assetManager.loadTexture("Textures/BrickWall_normal.jpg"));
-        mat.setTexture("ParallaxMap", assetManager.loadTexture("Textures/BrickWall_height.jpg"));
-        
-        mat.getTextureParam("DiffuseMap").getTextureValue().setWrap(WrapMode.Repeat);
-        mat.getTextureParam("NormalMap").getTextureValue().setWrap(WrapMode.Repeat);
-        mat.getTextureParam("ParallaxMap").getTextureValue().setWrap(WrapMode.Repeat);
-
-        Box floor = new Box(Vector3f.ZERO, 140, 1f, 140);
-        floor.scaleTextureCoordinates(new Vector2f(112.0f, 112.0f));
-        Geometry floorGeom = new Geometry("Floor", floor);
-        floorGeom.setShadowMode(ShadowMode.Receive);
-        floorGeom.setMaterial(mat);
-
-        floorGeom.addControl(new RigidBodyControl(0f));
-        floorGeom.setLocalTranslation(new Vector3f(0f, -6, 0f));
-//        floorGeom.attachDebugShape(assetManager);
-        rootNode.attachChild(floorGeom);
-        getPhysicsSpace().add(floorGeom);
-    }
-
->>>>>>> parent of f64878d... initWorld has beer replaced by a world generator
     private PhysicsSpace getPhysicsSpace() {
         return bulletAppState.getPhysicsSpace();
     }
 
-    @Override
-    public void simpleInitApp() {
-        setupKeys();
-<<<<<<< HEAD
-        bulletAppState = new BulletAppState();
-        stateManager.attach(bulletAppState);
-        createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
-=======
-        initWorld();
-        setupFloor();
->>>>>>> parent of f64878d... initWorld has beer replaced by a world generator
-        initCar();
+//    public void setupFloor() {
+//        Material mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall.j3m");
+//        mat.getTextureParam("DiffuseMap").getTextureValue().setWrap(WrapMode.Repeat);
+////        mat.getTextureParam("NormalMap").getTextureValue().setWrap(WrapMode.Repeat);
+////        mat.getTextureParam("ParallaxMap").getTextureValue().setWrap(WrapMode.Repeat);
+//
+//        Box floor = new Box(Vector3f.ZERO, 140, 1f, 140);
+//        floor.scaleTextureCoordinates(new Vector2f(112.0f, 112.0f));
+//        Geometry floorGeom = new Geometry("Floor", floor);
+//        floorGeom.setShadowMode(ShadowMode.Receive);
+//        floorGeom.setMaterial(mat);
+//
+//        PhysicsNode tb = new PhysicsNode(floorGeom, new MeshCollisionShape(floorGeom.getMesh()), 0);
+//        tb.setLocalTranslation(new Vector3f(0f, -6, 0f));
+////        tb.attachDebugShape(assetManager);
+//        rootNode.attachChild(tb);
+//        getPhysicsSpace().add(tb);
+//    }
 
+    private Geometry findGeom(Spatial spatial, String name) {
+        if (spatial instanceof Node) {
+            Node node = (Node) spatial;
+            for (int i = 0; i < node.getQuantity(); i++) {
+                Spatial child = node.getChild(i);
+                Geometry result = findGeom(child, name);
+                if (result != null) {
+                    return result;
+                }
+            }
+        } else if (spatial instanceof Geometry) {
+            if (spatial.getName().startsWith(name)) {
+                return (Geometry) spatial;
+            }
+        }
+        return null;
     }
 
-    @Override
-    public void simpleUpdate(float tpf) {
-        cam.lookAt(car.getWorldTranslation(), Vector3f.UNIT_Y);
-    }
+    private void buildPlayer() {
+        float stiffness = 120.0f;//200=f1 car
+        float compValue = 0.2f; //(lower than damp!)
+        float dampValue = 0.3f;
+        final float mass = 400;
 
-    @Override
-    public void simpleRender(RenderManager rm) {
-        //TODO: add render code
+        //Load model and get chassis Geometry
+        carNode = (Node)assetManager.loadModel("Models/Ferrari/Car.scene");
+        carNode.setShadowMode(ShadowMode.Cast);
+        Geometry chasis = findGeom(carNode, "Car");
+        BoundingBox box = (BoundingBox) chasis.getModelBound();
+
+        //Create a hull collision shape for the chassis
+        CollisionShape carHull = CollisionShapeFactory.createDynamicMeshShape(chasis);
+
+        //Create a vehicle control
+        player = new VehicleControl(carHull, mass);
+        carNode.addControl(player);
+
+        //Setting default values for wheels
+        player.setSuspensionCompression(compValue * 2.0f * FastMath.sqrt(stiffness));
+        player.setSuspensionDamping(dampValue * 2.0f * FastMath.sqrt(stiffness));
+        player.setSuspensionStiffness(stiffness);
+        player.setMaxSuspensionForce(10000);
+
+        //Create four wheels and add them at their locations
+        //note that our fancy car actually goes backwards..
+        Vector3f wheelDirection = new Vector3f(0, -1, 0);
+        Vector3f wheelAxle = new Vector3f(-1, 0, 0);
+
+        Geometry wheel_fr = findGeom(carNode, "WheelFrontRight");
+        wheel_fr.center();
+        box = (BoundingBox) wheel_fr.getModelBound();
+        wheelRadius = box.getYExtent();
+        float back_wheel_h = (wheelRadius * 1.7f) - 1f;
+        float front_wheel_h = (wheelRadius * 1.9f) - 1f;
+        player.addWheel(wheel_fr.getParent(), box.getCenter().add(0, -front_wheel_h, 0),
+                wheelDirection, wheelAxle, 0.2f, wheelRadius, true);
+
+        Geometry wheel_fl = findGeom(carNode, "WheelFrontLeft");
+        wheel_fl.center();
+        box = (BoundingBox) wheel_fl.getModelBound();
+        player.addWheel(wheel_fl.getParent(), box.getCenter().add(0, -front_wheel_h, 0),
+                wheelDirection, wheelAxle, 0.2f, wheelRadius, true);
+
+        Geometry wheel_br = findGeom(carNode, "WheelBackRight");
+        wheel_br.center();
+        box = (BoundingBox) wheel_br.getModelBound();
+        player.addWheel(wheel_br.getParent(), box.getCenter().add(0, -back_wheel_h, 0),
+                wheelDirection, wheelAxle, 0.2f, wheelRadius, false);
+
+        Geometry wheel_bl = findGeom(carNode, "WheelBackLeft");
+        wheel_bl.center();
+        box = (BoundingBox) wheel_bl.getModelBound();
+        player.addWheel(wheel_bl.getParent(), box.getCenter().add(0, -back_wheel_h, 0),
+                wheelDirection, wheelAxle, 0.2f, wheelRadius, false);
+
+        player.getWheel(2).setFrictionSlip(4);
+        player.getWheel(3).setFrictionSlip(4);
+
+        rootNode.attachChild(carNode);
+        getPhysicsSpace().add(player);
     }
 
     public void onAction(String binding, boolean value, float tpf) {
         if (binding.equals("Lefts")) {
             if (value) {
-                car.steeringValue += .5f;
+                steeringValue += .5f;
             } else {
-                car.steeringValue += -.5f;
+                steeringValue += -.5f;
             }
-            car.steer();
+            player.steer(steeringValue);
         } else if (binding.equals("Rights")) {
             if (value) {
-                car.steeringValue += -.5f;
+                steeringValue += -.5f;
             } else {
-                car.steeringValue += .5f;
+                steeringValue += .5f;
             }
-            car.steer();
+            player.steer(steeringValue);
         } //note that our fancy car actually goes backwards..
         else if (binding.equals("Ups")) {
             if (value) {
-                car.accelerationValue -= 800;
+                accelerationValue -= 800;
             } else {
-                car.accelerationValue += 800;
+                accelerationValue += 800;
             }
-            car.accelerate();
-            car.setCollisionShape();
+            player.accelerate(accelerationValue);
+            player.setCollisionShape(CollisionShapeFactory.createDynamicMeshShape(findGeom(carNode, "Car")));
         } else if (binding.equals("Downs")) {
             if (value) {
-                car.brake(40f);
+                player.brake(40f);
             } else {
-                car.brake(0f);
+                player.brake(0f);
             }
-        } else if (binding.equals("Reset") && value) {
-            car.reset();
+        } else if (binding.equals("Reset")) {
+            if (value) {
+                System.out.println("Reset");
+                player.setPhysicsLocation(Vector3f.ZERO);
+                player.setPhysicsRotation(new Matrix3f());
+                player.setLinearVelocity(Vector3f.ZERO);
+                player.setAngularVelocity(Vector3f.ZERO);
+                player.resetSuspension();
+            } else {
+            }
         }
+    }
+
+    @Override
+    public void simpleUpdate(float tpf) {
+        cam.lookAt(carNode.getWorldTranslation(), Vector3f.UNIT_Y);
+    }
+    
+    public static void createPhysicsTestWorld(Node rootNode, AssetManager assetManager, PhysicsSpace space) {
+        AmbientLight light = new AmbientLight();
+        light.setColor(ColorRGBA.LightGray);
+        rootNode.addLight(light);
+
+        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        material.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
+
+        Box floorBox = new Box(140, 0.25f, 140);
+        Geometry floorGeometry = new Geometry("Floor", floorBox);
+        floorGeometry.setMaterial(material);
+        floorGeometry.setLocalTranslation(0, -5, 0);
+//        Plane plane = new Plane();
+//        plane.setOriginNormal(new Vector3f(0, 0.25f, 0), Vector3f.UNIT_Y);
+//        floorGeometry.addControl(new RigidBodyControl(new PlaneCollisionShape(plane), 0));
+        floorGeometry.addControl(new RigidBodyControl(0));
+        rootNode.attachChild(floorGeometry);
+        space.add(floorGeometry);
+
+        //movable boxes
+        for (int i = 0; i < 12; i++) {
+            Box box = new Box(0.25f, 0.25f, 0.25f);
+            Geometry boxGeometry = new Geometry("Box", box);
+            boxGeometry.setMaterial(material);
+            boxGeometry.setLocalTranslation(i, 5, -3);
+            //RigidBodyControl automatically uses box collision shapes when attached to single geometry with box mesh
+            boxGeometry.addControl(new RigidBodyControl(2));
+            rootNode.attachChild(boxGeometry);
+            space.add(boxGeometry);
+        }
+
+        //immovable sphere with mesh collision shape
+        Sphere sphere = new Sphere(8, 8, 1);
+        Geometry sphereGeometry = new Geometry("Sphere", sphere);
+        sphereGeometry.setMaterial(material);
+        sphereGeometry.setLocalTranslation(2, -4, 2);
+        sphereGeometry.addControl(new RigidBodyControl(new MeshCollisionShape(sphere), 0));
+        rootNode.attachChild(sphereGeometry);
+        space.add(sphereGeometry);
+
     }
 }
