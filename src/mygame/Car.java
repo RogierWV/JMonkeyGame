@@ -96,7 +96,7 @@ public class Car extends Node {
         
         this.setMaterial(material);
         this.setShadowMode(RenderQueue.ShadowMode.Cast);
-        geometry = findGeom(carNode, "Car");
+        this.geometry = findGeom(carNode, "Car");
         BoundingBox box = (BoundingBox) geometry.getModelBound();
 
         //Create a hull collision shape for the chassis
@@ -148,10 +148,5 @@ public class Car extends Node {
         player.getWheel(3).setFrictionSlip(4);
 
         getPhysicsSpace().add(player);
-    }
-    
-    
-    
-    
-    
+    }    
 }
