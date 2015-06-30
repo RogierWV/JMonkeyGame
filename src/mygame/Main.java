@@ -70,6 +70,7 @@ public class Main extends SimpleApplication implements ActionListener {
     private float steeringValue = 0;
     private float accelerationValue = 0;
     private Node carNode;
+    public static long score = 0;
 
     public static void main(String[] args) {
         Main app = new Main();
@@ -292,14 +293,15 @@ public class Main extends SimpleApplication implements ActionListener {
 
         //movable boxes
         for (int i = 0; i < 12; i++) {
-            Box box = new Box(0.25f, 0.25f, 0.25f);
+            /*Checkpoint box = new Checkpoint(0.25f, 0.25f, 0.25f, 10);
             Geometry boxGeometry = new Geometry("Box", box);
             boxGeometry.setMaterial(material);
             boxGeometry.setLocalTranslation(i, 5, -3);
             //RigidBodyControl automatically uses box collision shapes when attached to single geometry with box mesh
             boxGeometry.addControl(new RigidBodyControl(2));
             rootNode.attachChild(boxGeometry);
-            space.add(boxGeometry);
+            space.add(boxGeometry);*/
+            rootNode.attachChild(new Checkpoint(space, material, i, 10));
         }
 
         //immovable sphere with mesh collision shape
