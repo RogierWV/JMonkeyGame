@@ -42,6 +42,7 @@ import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.control.VehicleControl;
 import com.jme3.bullet.objects.VehicleWheel;
 import com.jme3.bullet.util.CollisionShapeFactory;
+import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -71,6 +72,7 @@ public class Main extends SimpleApplication implements ActionListener {
     private float accelerationValue = 0;
     private Node carNode;
     public static long score = 0;
+    private BitmapText hudText;
 
     public static void main(String[] args) {
         Main app = new Main();
@@ -117,6 +119,13 @@ public class Main extends SimpleApplication implements ActionListener {
         dl = new DirectionalLight();
         dl.setDirection(new Vector3f(0.5f, -0.1f, 0.3f).normalizeLocal());
         rootNode.addLight(dl);
+        
+        hudText = new BitmapText(guiFont, false);          
+        hudText.setSize(guiFont.getCharSet().getRenderedSize());      // font size
+        hudText.setColor(ColorRGBA.Blue);                             // font color
+        hudText.setText("Score: " + score);                           // the text
+        hudText.setLocalTranslation(300, hudText.getLineHeight(), 0); // position
+        guiNode.attachChild(hudText);
     }
 
     private PhysicsSpace getPhysicsSpace() {
@@ -270,6 +279,7 @@ public class Main extends SimpleApplication implements ActionListener {
     @Override
     public void simpleUpdate(float tpf) {
         cam.lookAt(carNode.getWorldTranslation(), Vector3f.UNIT_Y);
+        hudText.setText("Score: " + score);
     }
     
     public static void createPhysicsTestWorld(Node rootNode, AssetManager assetManager, PhysicsSpace space) {
