@@ -69,11 +69,11 @@ public class Main extends SimpleApplication implements ActionListener {
     private Node node_fr, node_fl, node_br, node_bl;
     private float wheelRadius;
     private float steeringValue = 0;
-    private float accelerationValue = 0;
-    private Node carNode;
+    public static Node carNode;
     public static long score = 0;
     private BitmapText hudText;
-
+    private int accelerationValue;
+    
     public static void main(String[] args) {
         Main app = new Main();
         app.start();
@@ -315,13 +315,13 @@ public class Main extends SimpleApplication implements ActionListener {
         }
 
         //immovable sphere with mesh collision shape
-        Sphere sphere = new Sphere(8, 8, 1);
+        /*Sphere sphere = new Sphere(8, 8, 1);
         Geometry sphereGeometry = new Geometry("Sphere", sphere);
         sphereGeometry.setMaterial(material);
         sphereGeometry.setLocalTranslation(2, -4, 2);
         sphereGeometry.addControl(new RigidBodyControl(new MeshCollisionShape(sphere), 0));
         rootNode.attachChild(sphereGeometry);
-        space.add(sphereGeometry);
+        space.add(sphereGeometry);*/
 
     }
 }
